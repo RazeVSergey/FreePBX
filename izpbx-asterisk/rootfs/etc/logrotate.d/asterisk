@@ -1,0 +1,17 @@
+/var/log/asterisk/full
+/var/log/asterisk/messages
+/var/log/asterisk/security
+/var/log/asterisk/freepbx_dbug
+/var/log/asterisk/*_log
+/var/log/asterisk/*.log {
+    daily
+    rotate 7
+    compress
+    dateext
+    ifempty
+    missingok
+    su asterisk asterisk
+    postrotate
+      /usr/sbin/asterisk -rx 'logger reload' >/dev/null || true
+    endscript
+}

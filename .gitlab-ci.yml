@@ -1,0 +1,39 @@
+stages:
+    - deploy
+    - cleanup
+
+.before_script: &before
+     - URL=$(hostname -i | awk '{print $2}')
+     
+
+deloy-server-tephone:
+    before_script:
+        - *before
+    stage: deploy
+    environment:
+        name: review/$CI_COMMIT_REF_SLUG
+        url:  http://$URL
+        on_stop: stop_review_app
+        auto_stop_in: 1 day
+    script:
+      - echo $ip
+      - mv default.env .env
+      - docker-compose up -d
+    tags:
+      - freepbx-deploy
+    when: manual
+
+stop_review_app:
+    before_script:
+      - *before
+    stage: cleanup
+    when: manual
+    environment:
+        name: review/$CI_COMMIT_REF_SLUG
+        url:  http://$URL
+        action: stop
+    script:
+      - docker-compose  down
+      - exit 0
+    tags:
+      - freepbx-deploy
